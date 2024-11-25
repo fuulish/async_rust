@@ -6,8 +6,7 @@ use std::task::{Context, Poll, Waker};
 use std::thread;
 use std::time::{Duration, Instant};
 
-static WAKE_TIMES: Mutex<BTreeMap<Instant, Vec<Waker>>> =
-    Mutex::new(BTreeMap::new());
+static WAKE_TIMES: Mutex<BTreeMap<Instant, Vec<Waker>>> = Mutex::new(BTreeMap::new());
 
 fn sleep(duration: Duration) -> Sleep {
     let wake_time = Instant::now() + duration;
@@ -50,11 +49,11 @@ fn main() {
     let mut context = Context::from_waker(&waker);
     loop {
         // Poll each task and remove any that are Ready.
-        let is_pending = |task: &mut DynFuture| {
-            task.as_mut().poll(&mut context).is_pending()
-        };
+        let is_pending = |task: &mut DynFuture| task.as_mut().poll(&mut context).is_pending();
         tasks.retain_mut(is_pending);
         // If there are no tasks left, we're done. Note that this is different from Tokio.
+        //   tokio and threads typically quit without waiting for background tasks/threads
+        //   this does not - it waits until everything's finished
         if tasks.is_empty() {
             break;
         }
