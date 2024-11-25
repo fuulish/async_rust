@@ -20,9 +20,8 @@ impl Future for Sleep {
         if Instant::now() >= self.wake_time {
             Poll::Ready(())
         } else {
-            // this is scheduling a wake-up and we're busy polling all the time
-            context.waker().wake_by_ref();
-            // println!("scheduling wake-up");
+            // for 10 futures, this still works without scheduling wakers
+            // context.waker().wake_by_ref();
             Poll::Pending
         }
     }
@@ -34,12 +33,19 @@ async fn foo(n: u64) {
     println!("end {n}");
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let mut futures = Vec::new();
-    for n in 1..=10 {
+    for n in 1..=1000 {
         futures.push(foo(n));
     }
-    let joined_future = future::join_all(futures);
-    joined_future.await;
+    // join_all creates its own wakers in order not to poll all individual futures
+    // when pushing the total number of futures up, they won't all get woken up individually
+    //
+    let mut joined_future = Box::pin(future::join_all(futures));
+    let waker = futures::task::noop_waker();
+    let mut context = Context::from_waker(&waker);
+    // this is polling all the time...
+    while joined_future.as_mut().poll(&mut context).is_pending() {
+        // Busy loop!
+    }
 }

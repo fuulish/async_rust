@@ -22,7 +22,7 @@ struct JoinAll<F> {
 impl<F: Future> Future for JoinAll<F> {
     type Output = ();
 
-    fn poll(mut self: Pin<&mut Self>, context: &mut Context) -> Poll<()> {
+    fn poll(mut self: Pin<&mut Self>, context: &mut Context) -> Poll<Self::Output> {
         let is_pending = |future: &mut Pin<Box<F>>| future.as_mut().poll(context).is_pending();
         self.futures.retain_mut(is_pending);
         if self.futures.is_empty() {

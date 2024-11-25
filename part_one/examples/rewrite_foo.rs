@@ -15,6 +15,9 @@ fn foo(n: u64) -> Foo {
 
 struct Foo {
     n: u64,
+    // make sure that we're only printing the starting message once
+    //  `started` turns Foo into state machine
+    //  if there were more states than started/stopped, we'd need more state representations/enum
     started: bool,
     sleep: Pin<Box<tokio::time::Sleep>>,
 }
@@ -22,11 +25,13 @@ struct Foo {
 impl Future for Foo {
     type Output = ();
 
-    fn poll(mut self: Pin<&mut Self>, context: &mut Context) -> Poll<()> {
+    fn poll(mut self: Pin<&mut Self>, context: &mut Context) -> Poll<Self::Output> {
         if !self.started {
             println!("start {}", self.n);
             self.started = true;
         }
+        // We trust the underlying futures that they are reporting Poll::Pending appropriately
+        // ...and don't waste time, but rather return quickly
         if self.sleep.as_mut().poll(context).is_pending() {
             return Poll::Pending;
         }

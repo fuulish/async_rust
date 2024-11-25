@@ -16,6 +16,11 @@ struct Sleep {
 impl Future for Sleep {
     type Output = ();
 
+    // two of the jobs are present:
+    //  - do as much as possible without blocking
+    //  - return Ready/Pending
+    //
+    // sleep here is a leaf future and a wakeup needs to be scheduled
     fn poll(self: Pin<&mut Self>, _: &mut Context) -> Poll<()> {
         if Instant::now() >= self.wake_time {
             Poll::Ready(())
