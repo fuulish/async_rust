@@ -73,6 +73,9 @@ fn main() {
         // we can't use while-let here, because that would keep NEW_TASKS locked in the loop body.
         // See https://fasterthanli.me/articles/a-rust-match-made-in-hell.
         loop {
+            // this needs to be separate from `tasks` vector above
+            // if any of the tasks were to add new tasks during polling, they'd
+            // need to lock tasks, which wouldn't work
             let Some(mut task) = NEW_TASKS.lock().unwrap().pop() else {
                 break;
             };
