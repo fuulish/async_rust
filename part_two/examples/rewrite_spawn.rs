@@ -56,7 +56,13 @@ async fn async_main() {
 fn main() {
     let waker = futures::task::noop_waker();
     let mut context = Context::from_waker(&waker);
-    let mut tasks: Vec<DynFuture> = vec![Box::pin(async_main())];
+    // the overall starter task -> needs to get polled, otherwise no
+    // progress at all; with the following no progress will be made, even if
+    // async_main is called, the respective Future is lost
+    async_main();
+    let mut tasks: Vec<DynFuture> = Vec::new();
+    // this, however will work
+    // let mut tasks: Vec<DynFuture> = vec![Box::pin(async_main())];
     loop {
         // Poll each task and remove any that are Ready.
         let is_pending = |task: &mut DynFuture| task.as_mut().poll(&mut context).is_pending();
