@@ -58,6 +58,14 @@ fn main() {
             break;
         }
         // Sleep until the next Waker is scheduled and then invoke Wakers that are ready.
+        // FUH: This is our simple scheduling, shortest time goes first.
+        //      For more intricate notification mechanisms, how would the sche-
+        //      duler look like?
+        //
+        // FUH: tokio is more versatile and provides a multi-threaded backend
+        //      do we actually need that?
+        //      if we're waiting for I/O on multiple file-descriptors, we might
+        //      just be fine
         let mut wake_times = WAKE_TIMES.lock().unwrap();
         let next_wake = wake_times.keys().next().expect("sleep forever?");
         thread::sleep(next_wake.saturating_duration_since(Instant::now()));
