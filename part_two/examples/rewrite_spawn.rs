@@ -65,6 +65,8 @@ fn main() {
     // let mut tasks: Vec<DynFuture> = vec![Box::pin(async_main())];
     loop {
         // Poll each task and remove any that are Ready.
+        // XXX: this won't do work unless polled, i.e., if the main future is
+        //      not polled in here, then the other futures won't get added
         let is_pending = |task: &mut DynFuture| task.as_mut().poll(&mut context).is_pending();
         tasks.retain_mut(is_pending);
         // Some tasks might have spawned new tasks. Pop from NEW_TASKS until it's empty. Note that
