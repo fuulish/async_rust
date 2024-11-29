@@ -59,10 +59,11 @@ fn main() {
     // the overall starter task -> needs to get polled, otherwise no
     // progress at all; with the following no progress will be made, even if
     // async_main is called, the respective Future is lost
-    async_main();
-    let mut tasks: Vec<DynFuture> = Vec::new();
+    // XXX: next two lines will break it
+    // async_main();
+    // let mut tasks: Vec<DynFuture> = Vec::new();
     // this, however will work
-    // let mut tasks: Vec<DynFuture> = vec![Box::pin(async_main())];
+    let mut tasks: Vec<DynFuture> = vec![Box::pin(async_main())];
     loop {
         // Poll each task and remove any that are Ready.
         // XXX: this won't do work unless polled, i.e., if the main future is
