@@ -11,5 +11,5 @@ fn main() {
     // XXX: why can't this be just
     // test().poll(&context); // or unpin...
     let mut pinned = std::pin::pin!(test());
-    pinned.as_mut().poll(&mut context);
+    let _ = pinned.as_mut().poll(&mut context);
 }
