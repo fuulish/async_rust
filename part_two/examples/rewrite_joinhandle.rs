@@ -80,6 +80,8 @@ where
     F: Future<Output = T> + Send + 'static,
     T: Send + 'static,
 {
+    // the full state probably won't be dropped, because we are creating a clone with a reference
+    // to the "pointer"
     let join_state = Arc::new(Mutex::new(JoinState::Unawaited));
     let join_handle = JoinHandle {
         state: Arc::clone(&join_state),
