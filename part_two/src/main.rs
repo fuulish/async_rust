@@ -14,7 +14,7 @@ fn main() {
     // test().poll(&context); // or unpin...
     let mut pinned = std::pin::pin!(test());
     match pinned.as_mut().poll(&mut context) {
-        std::task::Poll::Ready(v) => println!("{:x}", *v),
+        std::task::Poll::Ready(v) => println!("{:X}", *v),
         std::task::Poll::Pending => unreachable!("this should not happen"),
     }
 }
